@@ -2,71 +2,70 @@
 #include <stdlib.h>
 
 
-//Watering time max/min constant (MINUTES OR SECONDS?)
-
+//Watering time max/min constant (minutes)
 #define WATERING_TIME_AT_0_DEGREES 0
 #define WATERING_TIME_AT_30_DEGREES 20
 
 
 //Plants angle (E=0, N=90, W=180, S=270,)
-
 #define PLANTS_ANGLE 185
 
 
-//Numbers of informations (Array lenght)
-
-#define HOURS 15 // 0-7 new/this day | 8-15 past day
+//Numbers of structs (Array lenght)
+#define HOURS 15
 
 
 //Declaring global variable time
-
 int time;
 
 
 //Declaring functions
-
 float watering_multiplier(int weather_id, int time, int wind_incidence, float wind_direction);
 int wind_incidence_function(float wind_direction, int time);
 //void struct_switch(struct weather);
 
 
-
-int main(void) { 
-	
-	struct 
+//Declaring global typedef array of structs
+typedef struct weather_struct
 	{
 		int temperature;
 		float wind_speed;
 		float wind_direction;
 		int weather_id;
-		float wind_incidence;
+		int wind_incidence;
 		float watering_multiplier;
-	} weather[HOURS];		//given for 9:00, 12:00, 15:00, 18:00, 21:00, 24:00, 3:00, 6:00 if fetched at 8:00 in the morning.
+		int watering_time
+	} weather_data_struct;	
 
+weather_data_struct weather[HOURS]; //given for 9:00, 12:00, 15:00, 18:00, 21:00, 24:00, 3:00, 6:00 if fetched at 8:00 in the morning.
+
+int main(void) { 
 
 	
-	int waterting_time_per_degree, watering_time;
+	//Declaring variables
+	float watering_time_per_degree;
 
-	
+	printf("____START CALCULATING IRRIGATION TIME____\n\n");
+
 	//Calculate watering_time_per_degree based on constants (#define)
-	
-	waterting_time_per_degree = (WATERING_TIME_AT_30_DEGREES - WATERING_TIME_AT_0_DEGREES)/30;
+	watering_time_per_degree = (WATERING_TIME_AT_30_DEGREES - WATERING_TIME_AT_0_DEGREES)/30;
+	printf("Watering time per degree set as: %f\n", watering_time_per_degree);
 
+	//Calculating wind incidence (If it rains, will the rain fall in the directions of the plants? 1=Yes, 0=No)
+	weather[time].wind_incidence = wind_incidence_function(weather[time].wind_direction, time);
+	printf("Wind incidence: %d  (1=Yes 0=No)\n", weather[time].wind_incidence);
 	
 	//Calculating watering_multiplier based on weather_id and time
-
 	weather[time].watering_multiplier = watering_multiplier(weather[time].weather_id, time, weather[time].wind_incidence, weather[time].wind_direction);
+	printf("Watering multiplier: %f\n", weather[time].watering_multiplier);
 
 
 	//Calculate watering time with weather multiplier
-
-	watering_time = waterting_time_per_degree * weather[time].temperature * weather[time].watering_multiplier;
-
+	weather[time].watering_time = watering_time_per_degree * weather[time].temperature * weather[time].watering_multiplier;
+	printf("__________________________________________\n");
+	printf("|  CALCULATED WATERING TIME: %d (minutes) |\n", weather[time].watering_time);
+	printf("------------------------------------------\n");
 	
-	//Calculating wind incidence (If it rains, will the rain fall in the directions of the plants? 1=Yes, 0=No)
-
-	weather[time].wind_incidence = wind_incidence_function(weather[time].wind_direction, time);
-
 	return 0;
 }
 
@@ -84,7 +83,6 @@ int main(void) {
 
 
 //Calculating wind_incidence based on angle (If it rains, will the rain fall in the directions of the plants? 1=Yes, 0=No)
-
 int wind_incidence_function(float wind_direction, int time) {
 	if ((PLANTS_ANGLE >= (wind_direction-30)) && (PLANTS_ANGLE <= (wind_direction+30))) {
 		return 1;
@@ -94,7 +92,6 @@ int wind_incidence_function(float wind_direction, int time) {
 
 
 //Function that calculates weather multiplier for every weather_id WITH wind_incidence (rain, sun, drizzle apocalypse etc..)
-
 float watering_multiplier(int weather_id, int time, int wind_incidence, float wind_direction) {
 
 
