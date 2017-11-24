@@ -40,7 +40,8 @@ void logo(void);
 float watering_multiplier(int weather_id, int time, int wind_incidence, float wind_direction, char weather_type[]);
 int wind_incidence_function(float wind_direction, int time);
 void struct_switch(weather_data_struct weather[HOURS]);
-void data_print(float watering_time_per_degree, int wind_incidence, float watering_multiplier, int watering_time, int time, char * weather_type);
+void data_print(float watering_time_per_degree, int wind_incidence, float watering_multiplier, int watering_time, int time, char * weather_type,
+                float temperature);
 
 void test();
 
@@ -68,16 +69,18 @@ int main(void) {
 	weather[time].watering_time = watering_time_per_degree * weather[time].temperature * weather[time].watering_multiplier;
 
     //Printing data on screen/console
-	data_print(watering_time_per_degree, weather[time].wind_incidence, weather[time].watering_multiplier, weather[time].watering_time, time, weather[time].weather_type );
+	data_print(watering_time_per_degree, weather[time].wind_incidence, weather[time].watering_multiplier, weather[time].watering_time, time, weather[time].weather_type, weather[time].temperature);
 	
 	return 0;
 }
 
 
 //Prints to screen/console data based on time
-void data_print(float watering_time_per_degree, int wind_incidence, float watering_multiplier, int watering_time, int time, char * weather_type) {
+void data_print(float watering_time_per_degree, int wind_incidence, float watering_multiplier, int watering_time, int time, char * weather_type,
+                float temperature) {
 	printf("---------DATA---------\n\n");
 	printf("Time: %d\n", time);
+    printf("Temperature: %.2f\n", temperature);
 	printf("Watering time per degree set as: %.2f (minutes)\n", watering_time_per_degree);
 	printf("Wind incidence: %d (1=Yes 0=No)\n", weather[time].wind_incidence);
 	printf("Watering multiplier: %.2f\n", weather[time].watering_multiplier);
