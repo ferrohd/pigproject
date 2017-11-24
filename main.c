@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 
-
 //Watering time max/min constant (minutes)
 #define WATERING_TIME_AT_0_DEGREES 0.0
 #define WATERING_TIME_AT_30_DEGREES 20.0
@@ -12,25 +11,28 @@
 #define ANGLE_WIDTH 30.0
 
 
-//Numbers of structs (Array lenght)
+//Numbers of structs (Array length)
 #define HOURS 15
 
 
 //Declaring global variable time
-int time;
+int time=0;
 
 //Declaring typedef array of structs
 typedef struct
-	{
-		int temperature;
-		float wind_speed;
-		float wind_direction;
-		int weather_id;
-		int wind_incidence;
-		float watering_multiplier;
-		int watering_time;
-		char weather_type[100];
-	} weather_data_struct;
+{
+    float temperature;
+    float wind_speed;
+    float wind_direction;
+    int weather_id;
+    int wind_incidence;
+    float watering_multiplier;
+    int watering_time;
+    char weather_type[100];
+} weather_data_struct;
+
+//Declaring global array of structs
+weather_data_struct weather[HOURS]; //given for 9:00, 12:00, 15:00, 18:00, 21:00, 24:00, 3:00, 6:00 if fetched at 8:00 in the morning.
 
 
 //Declaring functions
@@ -40,16 +42,15 @@ int wind_incidence_function(float wind_direction, int time);
 void struct_switch(weather_data_struct weather[HOURS]);
 void data_print(float watering_time_per_degree, int wind_incidence, float watering_multiplier, int watering_time, int time, char * weather_type);
 
-
-//Declaring global array of structs
-weather_data_struct weather[HOURS]; //given for 9:00, 12:00, 15:00, 18:00, 21:00, 24:00, 3:00, 6:00 if fetched at 8:00 in the morning.
+void test();
 
 int main(void) {
 
-    int i;
+    //Test
+    test();
 	
 	//Declaring variable(s)
-	float watering_time_per_degree;
+    float watering_time_per_degree;
 	
 	//Prints our beautiful logo
 	logo();
@@ -75,7 +76,6 @@ int main(void) {
 
 //Prints to screen/console data based on time
 void data_print(float watering_time_per_degree, int wind_incidence, float watering_multiplier, int watering_time, int time, char * weather_type) {
-	int i=0;
 	printf("---------DATA---------\n\n");
 	printf("Time: %d\n", time);
 	printf("Watering time per degree set as: %.2f (minutes)\n", watering_time_per_degree);
@@ -104,10 +104,10 @@ void logo(void) {
 //Switch the place of the structs to make space for the new data
 void struct_switch(weather_data_struct weather[HOURS]) {
 	int i;
-	for (i = HOURS; i = 1; i--) {
+	for (i = HOURS; i < 0; i--) {
 		weather[i] = weather[i-1];
 	}
-	//Now you can assing the new data to weather[0]
+	//Now you can assign the new data to weather[0]
 }
 
 
@@ -132,12 +132,13 @@ float watering_multiplier(int weather_id, int time, int wind_incidence, float wi
 
 
 	//EXTREME
+
 	if ((weather_id >= 900) && (weather_id <= 902) && (wind_incidence_function(wind_direction, time))) {
-		if ((weather_id >= 900) && (weather_id <= 902)) {	//TORNADO/HURRYCANE
-			strcpy(weather_type, "Weather is: TORNADO/HURRYCANE");
+		if ((weather_id >= 900) && (weather_id <= 902)) {	//TORNADO/HURRiCANE
+			strcpy(weather_type, "Weather is: TORNADO/HURRiCANE");
 			return 0;
 		}
-		if (weather_id == 906) {	//HAIL (Grandine)
+		if (weather_id == 906) {	//HAIL
 			strcpy(weather_type, "Weather is: HAIL");
 			return 0;
 		}
@@ -264,11 +265,28 @@ float watering_multiplier(int weather_id, int time, int wind_incidence, float wi
 			strcpy(weather_type, "Weather is: FREEZING RAIN");
 			return 0;
 		}
-		if ((weather_id >= 520) && (weather_id <= 531)) { //LIGHT INTNENSITY SHOWER RAIN/SHOWER RAIN/RAGGED SHOWER RAIN
+		if ((weather_id >= 520) && (weather_id <= 531)) { //LIGHT INTENSITY SHOWER RAIN/SHOWER RAIN/RAGGED SHOWER RAIN
 			strcpy(weather_type, "Weather is: LIGHT INTENSITY SHOWER RAIN/SHOWER RAIN/RAGGED SHOWER RAIN");
 			return 0;
 		}
 	}
 	strcpy(weather_type, "Weather is: NOT DEFINED");	//WEATHER NOT DEFINED
 	return 1;
+}
+
+
+//Just for testing
+void test() {
+    int * time_pointer;
+    time_pointer = &time;
+    printf("Set time: ");
+    scanf("%d", time_pointer);
+    printf("Set temperature: ");
+    scanf("%f", &weather[time].temperature);
+    printf("Set wind speed: ");
+    scanf("%f", &weather[time].wind_speed);
+    printf("Set wind direction: ");
+    scanf("%f", &weather[time].wind_direction);
+    printf("Set weather id: ");
+    scanf("%d", &weather[time].weather_id);
 }
