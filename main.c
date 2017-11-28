@@ -80,7 +80,7 @@ void data_print(float watering_time_per_degree, int wind_incidence, float wateri
                 float temperature) {
 	printf("---------DATA---------\n\n");
 	printf("Time: %d\n", time);
-    printf("Temperature: %.2f\n", temperature);
+	printf("Temperature: %.2f\n", temperature);
 	printf("Watering time per degree set as: %.2f (minutes)\n", watering_time_per_degree);
 	printf("Wind incidence: %d (1=Yes 0=No)\n", weather[time].wind_incidence);
 	printf("Watering multiplier: %.2f\n", weather[time].watering_multiplier);
