@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include "cJSON.h"
 
 //Watering time max/min constant (minutes)
 #define WATERING_TIME_AT_0_DEGREES 0.0
@@ -16,7 +19,7 @@
 
 
 //Declaring global variable time
-int time=0;
+int time = 0;
 
 //Declaring typedef array of structs
 typedef struct
@@ -42,13 +45,17 @@ int wind_incidence_function(float wind_direction, int time);
 void struct_switch(weather_data_struct weather[HOURS]);
 void data_print(float watering_time_per_degree, int wind_incidence, float watering_multiplier, int watering_time, int time, char * weather_type,
                 float temperature);
+void data_parsing(int time);
 
 void test();
 
 int main(void) {
 
-    //Test
-    test();
+	//Parses data
+	data_parsing(time);
+
+	//Just for testing
+	//test();
 	
 	//Declaring variable(s)
     float watering_time_per_degree;
@@ -80,11 +87,11 @@ void data_print(float watering_time_per_degree, int wind_incidence, float wateri
                 float temperature) {
 	printf("---------DATA---------\n\n");
 	printf("Time: %d\n", time);
-	printf("Temperature: %.2f\n", temperature);
+	printf("Temperature: %.2f (Celsius)\n", temperature);
 	printf("Watering time per degree set as: %.2f (minutes)\n", watering_time_per_degree);
 	printf("Wind incidence: %d (1=Yes 0=No)\n", weather[time].wind_incidence);
 	printf("Watering multiplier: %.2f\n", weather[time].watering_multiplier);
-	printf("%s\n", weather[time].weather_type);
+	printf("Weather is: %s\n", weather[time].weather_type);
 	printf("________________________________\n");
 	printf("|  WATERING TIME: %d (minutes) |\n", weather[time].watering_time);
 	printf("--------------------------------\n");
@@ -129,8 +136,14 @@ float watering_multiplier(int weather_id, int time, int wind_incidence, float wi
 	//SNOW
 
 	if ((weather_id >= 600) && (weather_id <= 622)) {
-		strcpy(weather_type, "Weather is: SNOW");
 		return 0;
+	}
+
+
+	//CLEAR
+
+	if ((weather_id >= 800) && (weather_id <= 804)) {
+		return 1;
 	}
 
 
@@ -138,15 +151,12 @@ float watering_multiplier(int weather_id, int time, int wind_incidence, float wi
 
 	if ((weather_id >= 900) && (weather_id <= 902) && (wind_incidence_function(wind_direction, time))) {
 		if ((weather_id >= 900) && (weather_id <= 902)) {	//TORNADO/HURRiCANE
-			strcpy(weather_type, "Weather is: TORNADO/HURRiCANE");
 			return 0;
 		}
 		if (weather_id == 906) {	//HAIL
-			strcpy(weather_type, "Weather is: HAIL");
 			return 0;
 		}
 		if (weather_id == 904) {	//HOT
-			strcpy(weather_type, "Weather is: HOT");
 			return 1.25;
 		}
 		
@@ -157,43 +167,33 @@ float watering_multiplier(int weather_id, int time, int wind_incidence, float wi
 
 	if ((weather_id >= 200) && (weather_id <= 232) && (wind_incidence_function(wind_direction, time))) {
 		if (weather_id == 200) { //THUNDERSTORM WITH LIGHT RAIN
-			strcpy(weather_type, "Weather is: THUNDERSTORM WITH LIGHT RAIN");
 			return 0.70;
 		}
 		if (weather_id == 201) {	//THUNDERSTORM WITH RAIN
-			strcpy(weather_type, "Weather is: THUNDERSTORM WITH RAIN");
 			return 0.50;
 		}
 		if (weather_id == 202) { //THUNDERSTORM WITH HEAVY RAIN
-			strcpy(weather_type, "Weather is: THUNDERSTORM WITH HEAVY RAIN");
 			return 0.25;
 		}
 		if (weather_id == 210) { //LIGHT THUNDERSTORM
-			strcpy(weather_type, "Weather is: LIGHT THUNDERSTORM");
 			return 0.90;
 		}
 		if (weather_id == 211) { //THUNDERSTORM
-			strcpy(weather_type, "Weather is: THUNDERSTORM");
 			return 0.80;
 		}
 		if (weather_id == 212) { //HEAVY THUNDERSTORM
-			strcpy(weather_type, "Weather is: HEAVY THUNDERSTORM");
 			return 0.60;
 		}
 		if (weather_id == 221) { //RUGGED THUNDERSTORM
-			strcpy(weather_type, "Weather is: RUGGED THUNDERSTORM");
 			return 0.70;
 		}
 		if (weather_id == 230) { //THUNDERSTORM WITH LIGHT DRIZZLE
-			strcpy(weather_type, "Weather is: THUNDERSTORM WITH LIGHT DRIZZLE");
 			return 0.80;
 		}
 		if (weather_id == 231) { //THUNDERSTORM WITH DRIZZLE
-			strcpy(weather_type, "Weather is: THUNDERSTORM WITH DRIZZLE");
 			return 0.70;
 		}
 		if (weather_id == 232) { //THUNDERSTORM WITH HEAVY DRIZZLE
-			strcpy(weather_type, "Weather is: THUNDERSTORM WITH HEAVY DRIZZLE");
 			return 0.55;
 		}
 	}
@@ -203,39 +203,30 @@ float watering_multiplier(int weather_id, int time, int wind_incidence, float wi
 
 	if ((weather_id >= 300) && (weather_id <= 321) && (wind_incidence_function(wind_direction, time))) {
 		if (weather_id == 300) { //LIGHT INTENSITY DRIZZLE
-			strcpy(weather_type, "Weather is: LIGHT INTENSITY DRIZZLE");
 			return 0.90;
 		}
 		if (weather_id == 301) { //DRIZZLE
-			strcpy(weather_type, "Weather is: DRIZZLE");
 			return 0.80;
 		}
 		if (weather_id == 302) { //HEAVY INTENSITY DRIZZLE
-			strcpy(weather_type, "Weather is: HEAVY INTENSITY DRIZZLE");
 			return 0.50;
 		}
 		if (weather_id == 310) { //LIGHT INTENSITY DRIZZLE RAIN
-			strcpy(weather_type, "Weather is: LIGHT INTENSITY DRIZZLE RAIN");
 			return 0.65;
 		}
 		if (weather_id == 311) { //DRIZZLE RAIN
-			strcpy(weather_type, "Weather is: DRIZZLE RAIN");
 			return 0.50;
 		}
 		if (weather_id == 312) { //HEAVY INTENSITY DRIZZLE RAIN
-			strcpy(weather_type, "Weather is: HEAVY INTENSITY DRIZZLE RAIN");
 			return 0.40;
 		}
 		if (weather_id == 313) { //SHOWER RAIN AND DRIZZLE
-			strcpy(weather_type, "Weather is: SHOWER RAIN AND DRIZZLE");
 			return 0.30;
 		}
 		if (weather_id == 314) { //HEAVY SHOWER RAIN AND DRIZZLE
-			strcpy(weather_type, "Weather is: HEAVY SHOWER RAIN AND DRIZZLE");
 			return 0.20;
 		}
 		if (weather_id == 321) { //SHOWER DRIZZLE
-			strcpy(weather_type, "Weather is: SHOWER DRIZZLE");
 			return 0.35;
 		}
 	}
@@ -245,35 +236,27 @@ float watering_multiplier(int weather_id, int time, int wind_incidence, float wi
 
 	if ((weather_id >= 500) && (weather_id <= 520) && (wind_incidence_function(wind_direction, time))) {
 		if (weather_id == 500) { //LIGHT RAIN
-			strcpy(weather_type, "Weather is: LIGHT RAIN");
 			return 0.80;
 		}
 		if (weather_id == 501) { //MODERATE RAIN
-			strcpy(weather_type, "Weather is: MODERATE RAIN");
 			return 0.70;
 		}
 		if (weather_id == 502) { //HEAVY INTENSITY RAIN
-			strcpy(weather_type, "Weather is: HEAVY INTENSITY RAIN");
 			return 0.40;
 		}
 		if (weather_id == 503) { //VERY HEAVY RAIN
-			strcpy(weather_type, "Weather is: VERY HEAVY RAIN");
 			return 0.30;
 		}
 		if (weather_id == 504) { //EXTREME RAIN
-			strcpy(weather_type, "Weather is: EXTREME RAIN");
 			return 0.10;
 		}
 		if (weather_id == 511) { //FREEZING RAIN
-			strcpy(weather_type, "Weather is: FREEZING RAIN");
 			return 0;
 		}
 		if ((weather_id >= 520) && (weather_id <= 531)) { //LIGHT INTENSITY SHOWER RAIN/SHOWER RAIN/RAGGED SHOWER RAIN
-			strcpy(weather_type, "Weather is: LIGHT INTENSITY SHOWER RAIN/SHOWER RAIN/RAGGED SHOWER RAIN");
 			return 0;
 		}
 	}
-	strcpy(weather_type, "Weather is: NOT DEFINED");	//WEATHER NOT DEFINED
 	return 1;
 }
 
@@ -292,4 +275,51 @@ void test() {
     scanf("%f", &weather[time].wind_direction);
     printf("Set weather id: ");
     scanf("%d", &weather[time].weather_id);
+}
+
+//Parses fetched JSON data and assing to variables
+void data_parsing(int time) {
+	char data[] = {/*TO DO*/};
+
+	//Begin parsing
+	cJSON * root = cJSON_Parse(data);
+
+	//Parses weather_id
+	cJSON *weather_parsed = cJSON_GetObjectItemCaseSensitive(root, "weather");
+	cJSON *id_item = cJSON_GetObjectItemCaseSensitive(weather_parsed, "id");
+	if (cJSON_IsNumber(id_item)) {
+		weather[time].weather_id = (int) id_item->valuedouble;
+	}
+
+	//Parses weather description
+	cJSON *description_item = cJSON_GetObjectItemCaseSensitive(weather_parsed, "description");
+	strcpy(weather[time].weather_type, description_item->valuestring);
+	char *p = weather[time].weather_type;
+	while (*p) {
+		*p = toupper(*p);
+		p++;
+	}
+
+	//Parses temperature
+	cJSON *main_data = cJSON_GetObjectItemCaseSensitive(root, "main");
+	cJSON *temp_item = cJSON_GetObjectItemCaseSensitive(main_data, "temp");
+	if (cJSON_IsNumber(temp_item)) {
+		weather[time].temperature = (float) temp_item->valuedouble - 273.15;
+	}
+
+	//Parses wind_speed
+	cJSON *wind = cJSON_GetObjectItemCaseSensitive(root, "wind");
+	cJSON *wind_speed_item = cJSON_GetObjectItemCaseSensitive(wind, "speed");
+	if (cJSON_IsNumber(wind_speed_item)) {
+		weather[time].wind_speed = (float) wind_speed_item->valuedouble;
+	}
+
+	//Parses wind_angle
+	cJSON *wind_deg_item = cJSON_GetObjectItemCaseSensitive(wind, "deg");
+	if (cJSON_IsNumber(wind_deg_item)) {
+		weather[time].wind_direction = (float) wind_deg_item->valuedouble;
+	}
+
+	//Empty the heap
+	cJSON_Delete(root);
 }
