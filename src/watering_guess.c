@@ -43,6 +43,7 @@ void logo(void);
 float watering_multiplier(int weather_id, int time, int wind_incidence, float wind_direction, char weather_type[]);
 int wind_incidence_function(float wind_direction, int time);
 void struct_switch(weather_data_struct weather[HOURS]);
+void square_brackets_remover(char *data);
 void data_print(float watering_time_per_degree, int wind_incidence, float watering_multiplier, int watering_time, int time, char * weather_type,
                 float temperature);
 void data_parsing(int time);
@@ -279,8 +280,11 @@ void test() {
 
 //Parses fetched JSON data and assing to variables
 void data_parsing(int time) {
-	char data[] = {/*TO DO*/};
-
+	char data[] = {/*TODO*/"\0"};
+	
+	//Removes the square brackets that the parsing library doesn't recognize
+	square_brackets_remover(data);
+	
 	//Begin parsing
 	cJSON * root = cJSON_Parse(data);
 
@@ -322,4 +326,15 @@ void data_parsing(int time) {
 
 	//Empty the heap
 	cJSON_Delete(root);
+}
+
+//Removes the square brackets that the parsing library doesn't recognize
+void square_brackets_remover(char *data) {
+	char *data_pointer = data;
+	while (*data_pointer != '\0') {
+		if ((*data_pointer == '[') || (*data_pointer == ']')) {
+			*data_pointer = ' ';
+		}
+		data_pointer++;
+	}
 }
