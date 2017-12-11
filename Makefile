@@ -1,5 +1,5 @@
 NAME = moisture_guess
-GCC = gcc
+GCC = g++
 CFLAGS = -Wall -I./include
 LFLAGS = 
 
