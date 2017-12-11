@@ -3,7 +3,7 @@ GCC = g++
 CFLAGS = -Wall -I./include
 LFLAGS = 
 
-SRC = src/main.c src/cJSON.c
+SRC = src/watering_guess.c src/cJSON.c
 OBJ = $(addsuffix .o, $(basename $(SRC)))
 
 all: $(NAME)

@@ -39,27 +39,27 @@ weather_data_struct weather[HOURS]; //given for 9:00, 12:00, 15:00, 18:00, 21:00
 
 
 //Declaring functions
+void test();
 void logo(void);
+void data_parsing(int time);
 float watering_multiplier(int weather_id, int time, int wind_incidence, float wind_direction, char weather_type[]);
 int wind_incidence_function(float wind_direction, int time);
-void struct_switch(weather_data_struct weather[HOURS]);
+void new_data(weather_data_struct * weather);
+void square_brackets_remover(char * data);
 void data_print(float watering_time_per_degree, int wind_incidence, float watering_multiplier, int watering_time, int time, char * weather_type,
                 float temperature);
-void data_parsing(int time);
-
-void test();
 
 int main(void) {
-
-	//Parses data
-	data_parsing(time);
+	
+	//Declaring variable(s)
+    float watering_time_per_degree;
 
 	//Just for testing
 	//test();
 	
-	//Declaring variable(s)
-    float watering_time_per_degree;
-	
+	//Parses data and makes room for new data
+	new_data(weather);
+		
 	//Prints our beautiful logo
 	logo();
 
@@ -111,13 +111,13 @@ void logo(void) {
 }
 
 
-//Switch the place of the structs to make space for the new data
-void struct_switch(weather_data_struct weather[HOURS]) {
-	int i;
-	for (i = HOURS; i < 0; i--) {
-		weather[i] = weather[i-1];
+//Switch the place of the structs to make space for the new parsed data
+void new_data(weather_data_struct * weather) {
+	weather_data_struct * weather_pointer = weather;
+	for (weather_pointer = weather_pointer +  (HOURS - 1); weather > weather_pointer; weather_pointer--) {
+		*weather_pointer = *(weather_pointer-1);
 	}
-	//Now you can assign the new data to weather[0]
+	data_parsing(0);
 }
 
 
@@ -139,13 +139,11 @@ float watering_multiplier(int weather_id, int time, int wind_incidence, float wi
 		return 0;
 	}
 
-
 	//CLEAR
 
 	if ((weather_id >= 800) && (weather_id <= 804)) {
 		return 1;
 	}
-
 
 	//EXTREME
 
@@ -161,7 +159,6 @@ float watering_multiplier(int weather_id, int time, int wind_incidence, float wi
 		}
 		
 	}
-
 
 	//THUNDERSTORM
 
@@ -198,7 +195,6 @@ float watering_multiplier(int weather_id, int time, int wind_incidence, float wi
 		}
 	}
 
-
 	//DRIZZLE
 
 	if ((weather_id >= 300) && (weather_id <= 321) && (wind_incidence_function(wind_direction, time))) {
@@ -231,7 +227,6 @@ float watering_multiplier(int weather_id, int time, int wind_incidence, float wi
 		}
 	}
 
-
 	//RAIN
 
 	if ((weather_id >= 500) && (weather_id <= 520) && (wind_incidence_function(wind_direction, time))) {
@@ -261,7 +256,7 @@ float watering_multiplier(int weather_id, int time, int wind_incidence, float wi
 }
 
 
-//Just for testing
+//Just for testing, not intended for use in the final version
 void test() {
     int * time_pointer;
     time_pointer = &time;
@@ -278,9 +273,12 @@ void test() {
 }
 
 //Parses fetched JSON data and assing to variables
-void data_parsing(int time) {
-	char data[] = {/*TO DO*/};
-
+void data_parsing(int time) { /*EXAMPLE DATA*/
+	char data[] = {"{\"coord\":{\"lon\":9.19,\"lat\":45.47},\"weather\":[{\"id\":803,\"main\":\"Clouds\",\"description\":\"broken clouds\",\"icon\":\"04d\"}],\"base\":\"stations\",\"main\":{\"temp\":280.15,\"pressure\":1030,\"humidity\":70,\"temp_min\":278.15,\"temp_max\":282.15},\"visibility\":10000,\"wind\":{\"speed\":1.5},\"clouds\":{\"all\":75},\"dt\":1512644100,\"sys\":{\"type\":1,\"id\":5800,\"message\":0.0108,\"country\":\"IT\",\"sunrise\":1512629389,\"sunset\":1512661197},\"id\":3173435,\"name\":\"Milan\",\"cod\":200}\0"};
+	
+	//Removes the square brackets that the parsing library doesn't recognize
+	square_brackets_remover(data);
+	
 	//Begin parsing
 	cJSON * root = cJSON_Parse(data);
 
@@ -322,4 +320,15 @@ void data_parsing(int time) {
 
 	//Empty the heap
 	cJSON_Delete(root);
+}
+
+//Removes the square brackets that the parsing library doesn't recognize
+void square_brackets_remover(char * data) {
+	char *data_pointer = data;
+	while (*data_pointer != '\0') {
+		if ((*data_pointer == '[') || (*data_pointer == ']')) {
+			*data_pointer = ' ';
+		}
+		data_pointer++;
+	}
 }
