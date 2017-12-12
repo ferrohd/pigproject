@@ -1,9 +1,9 @@
 NAME = moisture_guess
 GCC = g++
-CFLAGS = -Wall -I./include
-LFLAGS = 
+CFLAGS = -I./include -Wall
+LFLAGS = -lpthread -lpistache
 
-SRC = src/watering_guess.c src/cJSON.c
+SRC = src/cJSON.c src/server.cpp src/watering_guess.cpp src/weather_fetcher.cpp src/pigproject_main.cpp
 OBJ = $(addsuffix .o, $(basename $(SRC)))
 
 all: $(NAME)
@@ -11,8 +11,11 @@ all: $(NAME)
 $(NAME): $(OBJ)
 	$(GCC) $^ -o $(NAME) $(CFLAGS) $(LFLAGS)
 
-src/%.o: %.c
-	$(GCC) $< -c $(CFLAGS) $(LFLAGS)
+%.o: %.cpp
+	$(GCC) -c $< -o $@ $(CFLAGS) $(LFLAGS)
+
+%.o: %.c
+	gcc -c $< -o $@ $(CFLAGS) $(LFLAGS)
 
 clean:
 	rm -f $(OBJ)

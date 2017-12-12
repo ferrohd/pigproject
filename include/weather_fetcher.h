@@ -1,16 +1,20 @@
 #ifndef WEATHER_FETCHER_H
 #define	WEATHER_FETCHER_H
 
+#include <pistache/net.h>
+#include <pistache/http.h>
+#include <pistache/client.h>
+
 class WeatherFetcher
 {
 public:
 	WeatherFetcher();
 	~WeatherFetcher();
 	
-	char* fetchCurrentWeather();
+	void fetchCurrentWeather(std::string &s);
 
 private:
-	Http::Client client;
+	Pistache::Http::Client client;
 };
 
 #endif 
