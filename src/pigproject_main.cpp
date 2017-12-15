@@ -27,8 +27,8 @@ int main(int argc, char const *argv[]){
 	WateringGuess wg;
 	//fetch current weather and give guess on it
 	while(true){
-		std::this_thread::sleep_for(std::chrono::seconds(25));
 		wg.giveGuess();
+		std::this_thread::sleep_for(std::chrono::seconds(25));
 	}
 
 	return 0;

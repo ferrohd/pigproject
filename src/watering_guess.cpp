@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include "cJSON.h"
 
+#include <fstream>
 #include <iostream>
 
 #include "watering_guess.h"
@@ -38,6 +39,7 @@ int WateringGuess::giveGuess() {
 //Prints to screen/console data based on time
 void WateringGuess::data_log(float watering_time_per_degree, int wind_incidence, float watering_multiplier, int watering_time, int time, char * weather_type,
                 float temperature) {
+	//print to console
 	printf("\n\n---------DATA---------\n");
 	printf("Time: %d\n", time);
 	printf("Temperature: %.2f (Celsius)\n", temperature);
@@ -48,6 +50,12 @@ void WateringGuess::data_log(float watering_time_per_degree, int wind_incidence,
 	printf("________________________________\n");
 	printf("|  WATERING TIME: %d (minutes) |\n", weather[time].watering_time);
 	printf("--------------------------------\n");
+
+	//append data to index file
+	std::ofstream ofs;
+	ofs.open ("src/index.html", std::ofstream::out | std::ofstream::app);
+	ofs << "<p>more <b>lorem</b> ipsum</p>";
+	ofs.close();
 }
 
 
@@ -106,7 +114,7 @@ float WateringGuess::watering_multiplier(int weather_id, int time, int wind_inci
 		if (weather_id == 200) { //THUNDERSTORM WITH LIGHT RAIN
 			return 0.70;
 		}
-		if (weather_id == 201) {	//THUNDERSTORM WITH RAIN
+		if (weather_id == 201) { //THUNDERSTORM WITH RAIN
 			return 0.50;
 		}
 		if (weather_id == 202) { //THUNDERSTORM WITH HEAVY RAIN
@@ -287,10 +295,10 @@ void WateringGuess::square_brackets_remover(char * data) {
 			}
 			*data_pointer = ' ';
 		} else if (*data_pointer == ']') {
-			state = 4;
+			state = 5;
 			*data_pointer = ' ';
 		}
 		data_pointer++;
 	}
-	if (state != 0)	*data_pointer = ' ';
+	if (state == 4)	*data_pointer = ' ';
 }
