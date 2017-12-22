@@ -54,7 +54,14 @@ void WateringGuess::data_log(float watering_time_per_degree, int wind_incidence,
 	//append data to index file
 	std::ofstream ofs;
 	ofs.open ("src/index.html", std::ofstream::out | std::ofstream::app);
-	ofs << "<p>more <b>lorem</b> ipsum</p>";
+	ofs << "<br>\n\n___________DATA__________\n<br>"
+		"Time: " << time << "\n<br>"
+		"Temperature: " << temperature << " (Celsius)\n<br>"
+		"Watering time per degree set as: " << watering_time_per_degree << " (minutes)\n<br>"
+		"Wind incidence: " << weather[time].wind_incidence << " (1=Yes 0=No)\n<br>"
+		"Watering multiplier: " << weather[time].watering_multiplier << "\n<br>"
+		"Weather is: " << weather[time].weather_type <<"\n<br>"
+		"<b>WATERING TIME: " << weather[time].watering_time << " (minutes)</b>\n<br>";
 	ofs.close();
 }
 
