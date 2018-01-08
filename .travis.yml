@@ -1,0 +1,13 @@
+script: make all
+language: cpp
+compiler:
+  - gcc
+before_install: 
+  - git clone https://github.com/oktal/pistache.git
+  - cd pistache
+  - mkdir build
+  - cd build
+  - cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
+  - make
+  - sudo make install
+after_success: make clean
