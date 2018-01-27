@@ -32,15 +32,15 @@ typedef struct
 
 class WateringGuess {
 	private:
-		void data_parsing(int time);
-		float watering_multiplier(int weather_id, int time, int wind_incidence, float wind_direction, char weather_type[]);
-		int wind_incidence_function(float wind_direction, int time);
+		void data_parsing(int times);
+		float watering_multiplier(int weather_id, int times, int wind_incidence, float wind_direction, char weather_type[]);
+		int wind_incidence_function(float wind_direction, int times);
 		void new_data(weather_data_struct * weather);
 		void square_brackets_remover(char * data);
-		void data_log(float watering_time_per_degree, int wind_incidence, float watering_multiplier, int watering_time, int time, char * weather_type,
+		void data_log(float watering_time_per_degree, int wind_incidence, float watering_multiplier, int watering_time, int times, char * weather_type,
 	                float temperature);
 		
-		int time = 0;
+		int times = 0;
 
 
 		//Declaring global array of structs

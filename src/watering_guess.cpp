@@ -23,12 +23,16 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include "cJSON.h"
+
+#include "../include/cJSON.h"
 
 #include <fstream>
 #include <iostream>
 
-#include "watering_guess.h"
+#include "../include/watering_guess.h"
+
+#define ANSI_COLOR_GREEN   "\x1b[1;92m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
 
 int WateringGuess::giveGuess() {
 
@@ -42,47 +46,53 @@ int WateringGuess::giveGuess() {
 	watering_time_per_degree = (WATERING_TIME_AT_30_DEGREES - WATERING_TIME_AT_0_DEGREES) / 30;
 
 	//Calculating wind incidence (If it rains, will the rain fall in the directions of the plants? 1=Yes, 0=No)
-	weather[time].wind_incidence = wind_incidence_function(weather[time].wind_direction, time);
+	weather[times].wind_incidence = wind_incidence_function(weather[times].wind_direction, times);
 
 	//Calculating watering_multiplier based on weather_id and time
-	weather[time].watering_multiplier = watering_multiplier(weather[time].weather_id, time, weather[time].wind_incidence, weather[time].wind_direction, weather[time].weather_type);
+	weather[times].watering_multiplier = watering_multiplier(weather[times].weather_id, times, weather[times].wind_incidence, weather[times].wind_direction, weather[times].weather_type);
 
 	//Calculate watering time with weather multiplier
-	weather[time].watering_time = watering_time_per_degree * weather[time].temperature * weather[time].watering_multiplier;
+	weather[times].watering_time = watering_time_per_degree * weather[times].temperature * weather[times].watering_multiplier;
 
 	//Printing data on screen/console
-	data_log(watering_time_per_degree, weather[time].wind_incidence, weather[time].watering_multiplier, weather[time].watering_time, time, weather[time].weather_type, weather[time].temperature);
+	data_log(watering_time_per_degree, weather[times].wind_incidence, weather[times].watering_multiplier, weather[times].watering_time, times, weather[times].weather_type, weather[times].temperature);
 
 	return 0;
 }
 
 
 //Prints to screen/console data based on time
-void WateringGuess::data_log(float watering_time_per_degree, int wind_incidence, float watering_multiplier, int watering_time, int time, char * weather_type,
+void WateringGuess::data_log(float watering_time_per_degree, int wind_incidence, float watering_multiplier, int watering_time, int times, char * weather_type,
                 float temperature) {
+	//Get current time
+	time_t theTime = time(NULL);
+	struct tm *aTime = localtime(&theTime);
+	int hour=aTime->tm_hour;
+	int min=aTime->tm_min;
+
 	//print to console
 	printf("\n\n---------DATA---------\n");
-	printf("Time: %d\n", time);
+	printf("Time: %d:%d\n", hour, min);
 	printf("Temperature: %.2f (Celsius)\n", temperature);
 	printf("Watering time per degree set as: %.2f (minutes)\n", watering_time_per_degree);
-	printf("Wind incidence: %d (1=Yes 0=No)\n", weather[time].wind_incidence);
-	printf("Watering multiplier: %.2f\n", weather[time].watering_multiplier);
-	printf("Weather is: %s\n", weather[time].weather_type);
+	printf("Wind incidence: %d (1=Yes 0=No)\n", weather[times].wind_incidence);
+	printf("Watering multiplier: %.2f\n", weather[times].watering_multiplier);
+	printf("Weather is: %s\n", weather[times].weather_type);
 	printf("________________________________\n");
-	printf("|  WATERING TIME: %d (minutes) |\n", weather[time].watering_time);
+	printf("|  WATERING TIME: %d (minutes) |\n", weather[times].watering_time);
 	printf("--------------------------------\n");
 
 	//append data to index file
 	std::ofstream ofs;
 	ofs.open ("src/index.html", std::ofstream::out | std::ofstream::app);
 	ofs << "<br>\n\n___________DATA__________\n<br>"
-		"Time: " << time << "\n<br>"
+		"Time: " << hour << ":" << min << "\n<br>"
 		"Temperature: " << temperature << " (Celsius)\n<br>"
 		"Watering time per degree set as: " << watering_time_per_degree << " (minutes)\n<br>"
-		"Wind incidence: " << weather[time].wind_incidence << " (1=Yes 0=No)\n<br>"
-		"Watering multiplier: " << weather[time].watering_multiplier << "\n<br>"
-		"Weather is: " << weather[time].weather_type <<"\n<br>"
-		"<b>WATERING TIME: " << weather[time].watering_time << " (minutes)</b>\n<br>";
+		"Wind incidence: " << weather[times].wind_incidence << " (1=Yes 0=No)\n<br>"
+		"Watering multiplier: " << weather[times].watering_multiplier << "\n<br>"
+		"Weather is: " << weather[times].weather_type <<"\n<br>"
+		"<b>WATERING TIME: " << weather[times].watering_time << " (minutes)</b>\n<br>";
 	ofs.close();
 }
 
@@ -93,12 +103,13 @@ void WateringGuess::new_data(weather_data_struct * weather) {
 	for (weather_pointer = weather_pointer +  (HOURS - 1); weather > weather_pointer; weather_pointer--) {
 		*weather_pointer = *(weather_pointer - 1);
 	}
+	//New fetched data is saved in 
 	data_parsing(0);
 }
 
 
 //Calculating wind_incidence based on angle (If it rains, will the rain fall in the directions of the plants? 1=Yes, 0=No)
-int WateringGuess::wind_incidence_function(float wind_direction, int time) {
+int WateringGuess::wind_incidence_function(float wind_direction, int times) {
 	if ((PLANTS_ANGLE >= (wind_direction - ANGLE_WIDTH)) && (PLANTS_ANGLE <= (wind_direction + ANGLE_WIDTH))) {
 		return 1;
 	}
@@ -107,7 +118,7 @@ int WateringGuess::wind_incidence_function(float wind_direction, int time) {
 
 
 //Function that calculates weather multiplier for every weather_id WITH wind_incidence (rain, sun, drizzle apocalypse etc..)
-float WateringGuess::watering_multiplier(int weather_id, int time, int wind_incidence, float wind_direction, char weather_type[]) {
+float WateringGuess::watering_multiplier(int weather_id, int times, int wind_incidence, float wind_direction, char weather_type[]) {
 
 	//SNOW
 
@@ -123,7 +134,7 @@ float WateringGuess::watering_multiplier(int weather_id, int time, int wind_inci
 
 	//EXTREME
 
-	if ((weather_id >= 900) && (weather_id <= 902) && (wind_incidence_function(wind_direction, time))) {
+	if ((weather_id >= 900) && (weather_id <= 902) && (wind_incidence_function(wind_direction, times))) {
 		if ((weather_id >= 900) && (weather_id <= 902)) {	//TORNADO/HURRiCANE
 			return 0;
 		}
@@ -138,7 +149,7 @@ float WateringGuess::watering_multiplier(int weather_id, int time, int wind_inci
 
 	//THUNDERSTORM
 
-	if ((weather_id >= 200) && (weather_id <= 232) && (wind_incidence_function(wind_direction, time))) {
+	if ((weather_id >= 200) && (weather_id <= 232) && (wind_incidence_function(wind_direction, times))) {
 		if (weather_id == 200) { //THUNDERSTORM WITH LIGHT RAIN
 			return 0.70;
 		}
@@ -173,7 +184,7 @@ float WateringGuess::watering_multiplier(int weather_id, int time, int wind_inci
 
 	//DRIZZLE
 
-	if ((weather_id >= 300) && (weather_id <= 321) && (wind_incidence_function(wind_direction, time))) {
+	if ((weather_id >= 300) && (weather_id <= 321) && (wind_incidence_function(wind_direction, times))) {
 		if (weather_id == 300) { //LIGHT INTENSITY DRIZZLE
 			return 0.90;
 		}
@@ -205,7 +216,7 @@ float WateringGuess::watering_multiplier(int weather_id, int time, int wind_inci
 
 	//RAIN
 
-	if ((weather_id >= 500) && (weather_id <= 520) && (wind_incidence_function(wind_direction, time))) {
+	if ((weather_id >= 500) && (weather_id <= 520) && (wind_incidence_function(wind_direction, times))) {
 		if (weather_id == 500) { //LIGHT RAIN
 			return 0.80;
 		}
@@ -235,21 +246,21 @@ float WateringGuess::watering_multiplier(int weather_id, int time, int wind_inci
 //Just for testing, not intended for use in the final version
 void WateringGuess::test() {
 	int * time_pointer;
-	time_pointer = &time;
+	time_pointer = &times;
 	printf("Set time: ");
 	scanf("%d", time_pointer);
 	printf("Set temperature: ");
-	scanf("%f", &weather[time].temperature);
+	scanf("%f", &weather[times].temperature);
 	printf("Set wind speed: ");
-	scanf("%f", &weather[time].wind_speed);
+	scanf("%f", &weather[times].wind_speed);
 	printf("Set wind direction: ");
-	scanf("%f", &weather[time].wind_direction);
+	scanf("%f", &weather[times].wind_direction);
 	printf("Set weather id: ");
-	scanf("%d", &weather[time].weather_id);
+	scanf("%d", &weather[times].weather_id);
 }
 
 //Parses fetched JSON data and assing to variables
-void WateringGuess::data_parsing(int time) {
+void WateringGuess::data_parsing(int times) {
 
 	std::string s;
 	WeatherFetcher fetcher;
@@ -267,13 +278,13 @@ void WateringGuess::data_parsing(int time) {
 	cJSON *weather_parsed = cJSON_GetObjectItemCaseSensitive(root, "weather");
 	cJSON *id_item = cJSON_GetObjectItemCaseSensitive(weather_parsed, "id");
 	if (cJSON_IsNumber(id_item)) {
-		weather[time].weather_id = (int) id_item->valuedouble;
+		weather[times].weather_id = (int) id_item->valuedouble;
 	}
 
 	//Parses weather description
 	cJSON *description_item = cJSON_GetObjectItemCaseSensitive(weather_parsed, "description");
-	strcpy(weather[time].weather_type, description_item->valuestring);
-	char *p = weather[time].weather_type;
+	strcpy(weather[times].weather_type, description_item->valuestring);
+	char *p = weather[times].weather_type;
 	while (*p) {
 		*p = toupper(*p);
 		p++;
@@ -283,20 +294,20 @@ void WateringGuess::data_parsing(int time) {
 	cJSON *main_data = cJSON_GetObjectItemCaseSensitive(root, "main");
 	cJSON *temp_item = cJSON_GetObjectItemCaseSensitive(main_data, "temp");
 	if (cJSON_IsNumber(temp_item)) {
-		weather[time].temperature = (float) temp_item->valuedouble - 273.15;
+		weather[times].temperature = (float) temp_item->valuedouble - 273.15;
 	}
 
 	//Parses wind_speed
 	cJSON *wind = cJSON_GetObjectItemCaseSensitive(root, "wind");
 	cJSON *wind_speed_item = cJSON_GetObjectItemCaseSensitive(wind, "speed");
 	if (cJSON_IsNumber(wind_speed_item)) {
-		weather[time].wind_speed = (float) wind_speed_item->valuedouble;
+		weather[times].wind_speed = (float) wind_speed_item->valuedouble;
 	}
 
 	//Parses wind_angle
 	cJSON *wind_deg_item = cJSON_GetObjectItemCaseSensitive(wind, "deg");
 	if (cJSON_IsNumber(wind_deg_item)) {
-		weather[time].wind_direction = (float) wind_deg_item->valuedouble;
+		weather[times].wind_direction = (float) wind_deg_item->valuedouble;
 	}
 
 	//Empty the heap

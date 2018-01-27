@@ -24,19 +24,22 @@
 #include <chrono>
 #include <iostream>
 
-#include "server.h"
-#include "watering_guess.h"
+#include "../include/server.h"
+#include "../include/watering_guess.h"
+
+#define ANSI_COLOR_GREEN   "\x1b[1;92m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
 
 //Prints our beautiful logo
 void logo(void) {
-	printf("______ _      ______          _           _   \n");
+	printf(ANSI_COLOR_GREEN "______ _      ______          _           _   \n");
 	printf("| ___ (_)     | ___ \\        (_)         | |  \n");
 	printf("| |_/ /_  __ _| |_/ / __ ___  _  ___  ___| |_ \n");
 	printf("|  __/| |/ _` |  __/ '__/ _ \\| |/ _ \\/ __| __|\n");
 	printf("| |   | | (_| | |  | | | (_) | |  __/ (__| |_ \n");
 	printf("\\_|   |_|\\__, \\_|  |_|  \\___/| |\\___|\\___|\\__|\n");
 	printf("          __/ |             _/ |              \n");
-	printf("         |___/             |__/               \n\n");
+	printf("         |___/             |__/               \n\n" ANSI_COLOR_RESET);
 }
 
 int main(int argc, char const *argv[]){
@@ -50,7 +53,7 @@ int main(int argc, char const *argv[]){
 	//fetch current weather and give guess on it
 	while(true){
 		wg.giveGuess();
-		std::this_thread::sleep_for(std::chrono::seconds(25));
+		std::this_thread::sleep_for(std::chrono::hours(3));
 	}
 
 	return 0;
