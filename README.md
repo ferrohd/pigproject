@@ -1,7 +1,7 @@
 ﻿<p align="center"><img src="https://user-images.githubusercontent.com/16491613/34329009-a2a5b4cc-e8f0-11e7-9f2c-5f3dd142605f.png"></p>
 <br>
 
-[![Build Status](https://travis-ci.org/FerroHD/PigProject---Watering-Guess.svg?branch=master)](https://travis-ci.org/FerroHD/PigProject---Watering-Guess) 
+[![Build Status](https://travis-ci.org/ferrohd/PigProject---Watering-Guess.svg?branch=master)](https://travis-ci.org/FerroHD/PigProject---Watering-Guess) 
 [
 ![MIT License](https://camo.githubusercontent.com/3ccf4c50a1576b0dd30b286717451fa56b783512/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f4c6963656e73652d4d49542d79656c6c6f772e737667)](https://opensource.org/licenses/MIT)
 
